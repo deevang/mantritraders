@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MultipleImageUploader from '../components/MultipleImageUploader';
 import ProductGallery from '../components/ProductGallery';
+import { productsAPI, enquiriesAPI } from '../services/api';
 
 export default function Admin({ 
   products, 
@@ -211,16 +212,7 @@ export default function Admin({
         image: form.image || editingProduct.image
       };
 
-      const response = await fetch(`http://localhost:5000/api/products/${editingProduct._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify(productData)
-      });
-
-      const result = await response.json();
+      const result = await productsAPI.update(editingProduct._id, productData);
 
       if (result.success) {
         // Show success popup
@@ -280,20 +272,11 @@ export default function Admin({
 
   const markAsRead = async (enquiryId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/enquiries/${enquiryId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({ status: 'read' })
-      });
+      await enquiriesAPI.updateStatus(enquiryId, 'read');
       
-      if (response.ok) {
-        // Reload enquiries to see the updated status
-        if (onLoadEnquiries) {
-          await onLoadEnquiries();
-        }
+      // Reload enquiries to see the updated status
+      if (onLoadEnquiries) {
+        await onLoadEnquiries();
       }
     } catch (error) {
       console.error('Failed to mark enquiry as read:', error);

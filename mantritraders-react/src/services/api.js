@@ -1,7 +1,12 @@
 import axios from 'axios';
 
 // Create axios instance with base configuration
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mantritraders.onrender.com/api';
+
+// Debug: Log the API URL being used
+console.log('API_BASE_URL:', API_BASE_URL);
+console.log('Environment variables:', import.meta.env);
+console.log('VITE_API_URL from env:', import.meta.env.VITE_API_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,

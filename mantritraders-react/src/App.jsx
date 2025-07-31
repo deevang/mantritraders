@@ -218,15 +218,8 @@ function App() {
             
             // Load enquiries if admin is logged in
             try {
-              const enquiriesResponse = await fetch('http://localhost:5000/api/enquiries', {
-                headers: {
-                  'Authorization': `Bearer ${token}`
-                }
-              });
-              if (enquiriesResponse.ok) {
-                const data = await enquiriesResponse.json();
-                setEnquiries(data.enquiries || []);
-              }
+              const data = await enquiriesAPI.getAll();
+              setEnquiries(data.enquiries || []);
             } catch (error) {
               console.error('Failed to load enquiries:', error);
             }
@@ -252,18 +245,8 @@ function App() {
   // Load enquiries for admin
   const loadEnquiries = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      if (token) {
-        const response = await fetch('http://localhost:5000/api/enquiries', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setEnquiries(data.enquiries || []);
-        }
-      }
+      const data = await enquiriesAPI.getAll();
+      setEnquiries(data.enquiries || []);
     } catch (error) {
       console.error('Failed to load enquiries:', error);
     }
