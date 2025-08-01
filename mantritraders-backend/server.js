@@ -20,9 +20,52 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/mantritra
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
+console.log('Loading auth routes...');
 app.use('/api/auth', require('./routes/auth'));
+console.log('Loading products routes...');
 app.use('/api/products', require('./routes/products'));
+console.log('Loading enquiries routes...');
 app.use('/api/enquiries', require('./routes/enquiries'));
+
+// Debug route to test if server is working
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Server is working', routes: ['auth', 'products', 'enquiries'] });
+});
+
+// Direct setup route for testing
+app.get('/api/setup', async (req, res) => {
+  try {
+    const User = require('./models/User');
+    
+    // Check if admin already exists
+    const existingAdmin = await User.findOne({ role: 'admin' });
+    if (existingAdmin) {
+      return res.status(400).json({ error: 'Admin user already exists' });
+    }
+
+    // Create admin user
+    const adminUser = new User({
+      email: process.env.ADMIN_EMAIL || 'admin@mantritraders.com',
+      password: process.env.ADMIN_PASSWORD || 'admin123',
+      role: 'admin'
+    });
+
+    await adminUser.save();
+
+    res.json({
+      success: true,
+      message: 'Admin user created successfully',
+      user: {
+        email: adminUser.email,
+        role: adminUser.role
+      }
+    });
+
+  } catch (error) {
+    console.error('Setup error:', error);
+    res.status(500).json({ error: 'Failed to create admin user' });
+  }
+});
 
 // Health check route
 app.get('/api/health', (req, res) => {
